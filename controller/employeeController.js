@@ -69,13 +69,13 @@ const addEmployee = async (req, res) => {
 
     await newEmployee.save();
 
-    res.status(201).json({
+   return  res.status(201).json({
       success: true,
       message: "Employee added successfully",
     });
   } catch (error) {
     console.error("Error adding employee:", error);
-    res
+   return  res
       .status(500)
       .json({ success: false, error: "Adding employee server error" });
   }
