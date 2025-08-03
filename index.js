@@ -3,7 +3,7 @@ import express from 'express';
 import 'dotenv/config';
 import cors from 'cors';
 import connectDB from './db/db.js';
-import seedUsers from './userseed.js'; // ✅ Import here
+import seedUsers from './userSeed.js'; // ✅ Import here
 
 import authRouter from './routes/auth.js';
 import departmentRouter from './routes/department.js';
