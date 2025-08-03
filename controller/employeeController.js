@@ -2,62 +2,52 @@ import multer from "multer";
 import Employee from "../models/Employee.js";
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
-import path from "path";
 
-// Configure Multer for file uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "public/uploads");
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname));
-  },
-});
-
+// ✅ Configure Multer (memory-based for Vercel)
+const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-// Add Employee Controller
+// ✅ Add Employee Controller
 const addEmployee = async (req, res) => {
   try {
     const {
-  name, // ✅ FIXED: use name instead of employeeName
-  email,
-  employeeId,
-  department,
-  role,
-  salary,
-  gender,
-  dob,
-  password,
-} = req.body;
+      name,
+      email,
+      employeeId,
+      department,
+      role,
+      salary,
+      gender,
+      dob,
+      password,
+    } = req.body;
 
-  
-
-    
-    // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res
-        .status(400)
-        .json({ success: false, error: "User already exists" });
+      return res.status(400).json({ success: false, error: "User already exists" });
     }
 
-    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create new user
-   const newUser = new User({
-  name, // ✅ Now it's available
-  email,
-  password: hashedPassword,
-  role,
-  profileImage: req.file ? req.file.filename : "",
-});
+    // ✅ Convert image to Base64 if uploaded
+    let profileImage = {};
+    if (req.file) {
+      profileImage = {
+        data: req.file.buffer.toString("base64"),
+        contentType: req.file.mimetype,
+      };
+    }
 
+    const newUser = new User({
+      name,
+      email,
+      password: hashedPassword,
+      role,
+      profileImage,
+    });
 
     const savedUser = await newUser.save();
 
-    // Create new employee
     const newEmployee = new Employee({
       userId: savedUser._id,
       employeeId,
@@ -69,46 +59,39 @@ const addEmployee = async (req, res) => {
 
     await newEmployee.save();
 
-   return  res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: "Employee added successfully",
     });
   } catch (error) {
     console.error("Error adding employee:", error);
-   return  res
-      .status(500)
-      .json({ success: false, error: "Adding employee server error" });
+    return res.status(500).json({ success: false, error: "Server error" });
   }
 };
 
-// Get Employees
+// ✅ Get All Employees
 const getEmployees = async (req, res) => {
   try {
     const employees = await Employee.find()
-      .populate("userId", { password: 0 }) // exclude password
+      .populate("userId", { password: 0 }) // Exclude password
       .populate("department");
 
     res.status(200).json({ success: true, employees });
   } catch (error) {
     console.error("Error fetching employees:", error);
-    res
-      .status(500)
-      .json({ success: false, error: "Error getting employees" });
+    res.status(500).json({ success: false, error: "Error getting employees" });
   }
 };
 
-
-
+// ✅ Get Single Employee
 const getSingleEmployee = async (req, res) => {
   const { id } = req.params;
 
   try {
-    // Try by _id (Employee ID)
     let employee = await Employee.findById(id)
       .populate("userId", { password: 0 })
       .populate("department");
 
-    // If not found, try by userId (for logged-in user's profile)
     if (!employee) {
       employee = await Employee.findOne({ userId: id })
         .populate("userId", { password: 0 })
@@ -126,6 +109,7 @@ const getSingleEmployee = async (req, res) => {
   }
 };
 
+// ✅ Update Employee
 const updateEmployee = async (req, res) => {
   try {
     const { id } = req.params;
@@ -139,7 +123,12 @@ const updateEmployee = async (req, res) => {
 
     // Update user fields
     if (name) user.name = name;
-    if (req.file) user.profileImage = req.file.filename;
+    if (req.file) {
+      user.profileImage = {
+        data: req.file.buffer.toString("base64"),
+        contentType: req.file.mimetype,
+      };
+    }
     await user.save();
 
     // Update employee fields
@@ -153,6 +142,8 @@ const updateEmployee = async (req, res) => {
     res.status(500).json({ success: false, error: "Server error while updating employee" });
   }
 };
+
+// ✅ Delete Employee
 const deleteEmployee = async (req, res) => {
   const { id } = req.params;
 
@@ -172,8 +163,4 @@ const deleteEmployee = async (req, res) => {
   }
 };
 
-
-
-
-
-export { addEmployee, upload, getEmployees ,getSingleEmployee, updateEmployee,deleteEmployee};
+export { addEmployee, upload, getEmployees, getSingleEmployee, updateEmployee, deleteEmployee };
