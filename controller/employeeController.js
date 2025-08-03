@@ -31,11 +31,21 @@ const addEmployee = async (req, res) => {
   password,
 } = req.body;
 
-
-    // Log incoming data for debugging (optional)
+    / ✅ Log body and file for debugging
     console.log("Add employee payload:", req.body);
     console.log("Uploaded file:", req.file);
 
+    // ✅ Check if any field is missing
+    if (!name || !email || !employeeId || !department || !role || !salary || !gender || !dob || !password) {
+      return res.status(400).json({ success: false, error: "All fields are required." });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ success: false, error: "Profile image is required." });
+    }
+
+
+    
     // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
