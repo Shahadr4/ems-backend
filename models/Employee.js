@@ -1,55 +1,42 @@
-import mongoose from "mongoose";
-import{ Schema } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
-
-
-
-const employeeSchema = new Schema({
-
-    userId:{
-        type:Schema.Types.ObjectId,
-        ref:"User",
-        required:true
+// Define the Employee schema
+const employeeSchema = new Schema(
+  {
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
-    employeeId:{
-        type:String,
-        required:true,
-        unique:true
+    employeeId: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
     },
-    dob:{
-        type:Date,
-        
+    dob: {
+      type: Date,
     },
-    gender:{
-        type:String,
-        
+    gender: {
+      type: String,
+      enum: ["Male", "Female", "Other"],
     },
-    department:{
-        type:Schema.Types.ObjectId,
-        ref:"Department",
-        required:true
-
-
+    department: {
+      type: Schema.Types.ObjectId,
+      ref: "Department",
+      required: true,
     },
-    salary:{
-        type:Number,
-        required:true
+    salary: {
+      type: Number,
+      required: true,
+      min: 0,
     },
-    createdAt:{
-        type:Date,
-        default:Date.now
-    },
-    updatedAt:{
-        type:Date,
-        default:Date.now
-    }
+  },
+  {
+    timestamps: true, // ✅ Automatically adds createdAt and updatedAt
+  }
+);
 
-
-
-
-
-});
-
-const Employee = mongoose.model("Employees",employeeSchema);// Create the Employee model based on the schema
+// Export the Employee model
+const Employee = mongoose.model("Employee", employeeSchema);
 export default Employee;
-// This code defines a Mongoose schema for an Employee model with fields for user ID, employee ID, date
