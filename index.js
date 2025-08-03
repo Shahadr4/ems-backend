@@ -17,7 +17,7 @@ const startServer = async () => {
 
   const app = express();
   app.use(cors({
-    origin: 'https://employee-frontend-it9y.vercel.app',
+    origin: 'https://ems-frontend-two-xi.vercel.app/',
     credentials: true
   }));
   app.use(express.json());
