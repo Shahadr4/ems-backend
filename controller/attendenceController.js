@@ -16,7 +16,7 @@ const addAttendence = async (req, res) => {
     const employee = await Employee.findOne({ userId });
     if (!employee) return res.status(404).json({ error: "Employee not found" });
 
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date()
     today.setHours(0, 0, 0, 0);
 
     const existing = await Attendance.findOne({
